@@ -1,0 +1,431 @@
+<title>AI Capex Ledger</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Open dataset: operating cash flow vs all-in AI capital spending for Microsoft, Alphabet, Amazon, Meta and Oracle, quarter by quarter. By Footnote 13.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;700&family=Newsreader:opsz,wght@6..72,600&display=swap">
+<style>
+/* Layout: a printed annual-report page — masthead, the claim, the ledger grid, then notes to the accounts. Footnote 13 design system tokens. */
+:root{
+  --paper:#F6F3EC; --panel:#FFFDF8; --ink:#16181D; --ink-muted:#595E66; --rule:#D6D0C2;
+  --red:#B8321E; --red-soft:#F3DCD4; --slate:#2E4A6D; --slate-mid:#6E84A3; --slate-soft:#D5DDE7;
+  --context:#868A8F; --on-red:#F6F3EC;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121418; --panel:#1A1D22; --ink:#ECE7DC; --ink-muted:#A3A7AE; --rule:#30343B;
+  --red:#F06A52; --red-soft:#3B211C; --slate:#8DAED6; --slate-mid:#4B6585; --slate-soft:#1F2B3A;
+  --context:#767A82; --on-red:#121418; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121418; --panel:#1A1D22; --ink:#ECE7DC; --ink-muted:#A3A7AE; --rule:#30343B;
+  --red:#F06A52; --red-soft:#3B211C; --slate:#8DAED6; --slate-mid:#4B6585; --slate-soft:#1F2B3A;
+  --context:#767A82; --on-red:#121418; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1080px;margin:0 auto;padding-block:32px 64px;display:flex;flex-direction:column;gap:56px}
+a{color:inherit;text-decoration-color:var(--rule);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--red)}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* masthead */
+.mast{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:1px solid var(--ink);padding-bottom:12px}
+.brand{font-family:var(--serif);font-weight:600;font-size:26px;letter-spacing:-.01em;text-decoration:none}
+.brand sup{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--red);vertical-align:top;position:relative;top:2px;margin-left:2px}
+.mast nav{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--ink-muted)}
+
+/* hero */
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin:0 0 10px}
+h1{font-family:var(--sans);font-weight:700;font-size:clamp(30px,5vw,46px);line-height:1.1;letter-spacing:-.02em;margin:0;text-wrap:balance;max-width:20ch}
+.deck{color:var(--ink-muted);font-size:18px;line-height:1.45;margin:14px 0 0;max-width:62ch}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin-top:32px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.fact{padding:16px 16px 18px 0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.fact + .fact{padding-left:16px;border-left:1px solid var(--rule)}
+.fact .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:clamp(30px,4vw,40px);line-height:1;letter-spacing:-.02em;font-weight:500}
+.fact .v.red{color:var(--red)}
+.fact .l{font-size:14px;color:var(--ink-muted);line-height:1.35}
+@media (max-width:640px){.fact + .fact{padding-left:0;border-left:0;border-top:1px solid var(--rule)}}
+
+/* sections */
+section > header{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+h2{font-family:var(--sans);font-weight:700;font-size:clamp(22px,3vw,28px);line-height:1.2;letter-spacing:-.01em;margin:0;text-wrap:balance}
+section > header p{margin:0;color:var(--ink-muted);max-width:68ch}
+.src{font-size:12px;letter-spacing:.01em;color:var(--ink-muted);border-top:1px solid var(--rule);padding-top:10px;margin-top:16px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px}
+.src b{font-family:var(--serif);font-weight:600;color:var(--ink);font-size:13px}
+.src b sup{font-family:var(--mono);color:var(--red);font-size:9px;margin-left:1px}
+
+/* toggle */
+.seg{display:inline-flex;border:1px solid var(--rule);background:var(--panel);align-self:flex-start;margin-top:8px}
+.seg button{font:500 14px/1 var(--sans);color:var(--ink-muted);background:none;border:0;padding:9px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+
+/* ledger grid */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.ledger{border-collapse:collapse;width:100%;min-width:900px}
+.ledger th,.ledger td{padding:0}
+.ledger thead th{font:400 12px/1 var(--mono);color:var(--ink-muted);text-align:center;padding:0 0 8px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ledger thead th.yr{font-size:11px;letter-spacing:.08em;color:var(--ink-muted);text-align:left;padding-bottom:4px;border-left:1px solid var(--rule);padding-left:6px}
+.ledger thead th.first{text-align:left}
+.ledger tbody th{text-align:left;vertical-align:middle;padding:10px 14px 10px 0;position:sticky;left:0;background:var(--paper);z-index:1;min-width:168px}
+.ledger tbody th .co{font-weight:700;font-size:17px;letter-spacing:-.01em;display:block}
+.ledger tbody th .st{font-size:12px;color:var(--ink-muted);font-weight:400;display:block;line-height:1.3;margin-top:2px}
+.ledger tbody tr{border-top:1px solid var(--rule)}
+.ledger tbody tr.total{border-top:2px solid var(--ink)}
+.cell{height:52px;border:2px solid var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:15px;background:var(--panel);color:var(--ink);min-width:62px}
+.cell.near{color:var(--ink-muted)}
+.cell.def{background:var(--red-soft);font-weight:600}
+.cell.def.big{background:var(--red);color:var(--on-red)}
+.cell.due{background:none;border:1px dashed var(--rule);font:400 11px/1.2 var(--sans);color:var(--ink-muted);text-align:center;margin:2px}
+.cell.na{background:none;color:var(--rule)}
+td.latest{padding-left:14px;text-align:right;white-space:nowrap}
+td.latest .r{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:500;letter-spacing:-.02em;display:block}
+td.latest .r.red{color:var(--red)}
+td.latest .q{font-size:11px;color:var(--ink-muted);font-family:var(--mono)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--ink-muted);margin-top:14px}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:18px;height:14px;display:inline-block;border:1px solid var(--rule)}
+.sw.big{background:var(--red);border-color:var(--red)} .sw.small{background:var(--red-soft)} .sw.ok{background:var(--panel)} .sw.due{border-style:dashed}
+
+/* charts */
+.chart svg{display:block;width:100%;height:auto;max-width:100%}
+.chart text{font-family:var(--mono);font-size:12px;fill:var(--ink-muted)}
+.chart .lbl{font-family:var(--sans);font-size:13px;font-weight:500}
+
+/* waterline */
+.wl{display:flex;flex-direction:column}
+.wl-row{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:center;padding:12px 0;border-top:1px solid var(--rule)}
+.wl-row.total{border-top:2px solid var(--ink)}
+.wl-name{font-weight:700;font-size:16px;line-height:1.25}
+.wl-name small{display:block;font-weight:400;font-size:12px;color:var(--ink-muted)}
+.wl-track{position:relative;display:flex;align-items:center;gap:10px;min-width:0}
+.wl-bar{height:22px;background:var(--context);flex:none}
+.wl-bar.story{background:var(--red)}
+.wl-bar.tot{background:var(--slate)}
+.wl-val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}
+.wl-val b{font-weight:600}
+.wl-val.story b{color:var(--red)}
+.wl-val span{color:var(--ink-muted)}
+@media (max-width:560px){.wl-row{grid-template-columns:1fr;gap:6px}}
+
+/* data section */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:32px}
+.cols > *{min-width:0}
+.dl{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 18px}
+.btn{display:inline-flex;align-items:center;gap:8px;font:500 15px/1 var(--sans);padding:12px 16px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);text-decoration:none;border-radius:2px;cursor:pointer}
+.btn.ghost{background:var(--panel);color:var(--ink);border-color:var(--rule)}
+.btn:hover{text-decoration:none;opacity:.9}
+.btn .k{font-family:var(--mono);font-size:12px;opacity:.75}
+.cite{font-family:var(--mono);font-size:13px;line-height:1.5;background:var(--panel);border:1px solid var(--rule);padding:12px 14px;user-select:all;word-break:break-word}
+.note{font-size:13px;color:var(--ink-muted)}
+dl.dict{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0;font-size:14px}
+dl.dict dt{font-family:var(--mono);font-size:13px}
+dl.dict dd{margin:0;color:var(--ink-muted)}
+.prose{max-width:68ch;display:flex;flex-direction:column;gap:12px}
+.prose p{margin:0}
+table.basis{border-collapse:collapse;width:100%;font-size:14px}
+.basis th,.basis td{text-align:left;padding:10px 12px 10px 0;border-top:1px solid var(--rule);vertical-align:top}
+.basis th{font-weight:700;white-space:nowrap}
+.basis td{color:var(--ink-muted)}
+ol.log{list-style:none;padding:0;margin:0;font-size:14px}
+ol.log li{display:grid;grid-template-columns:110px 1fr;gap:12px;padding:8px 0;border-top:1px solid var(--rule)}
+ol.log time{font-family:var(--mono);font-size:13px;color:var(--ink-muted)}
+footer.foot{border-top:1px solid var(--ink);padding-top:16px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:13px;color:var(--ink-muted)}
+.err{border:1px dashed var(--red);padding:16px;color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){.cell,.wl-bar{transition:background-color .2s}}
+</style>
+
+<div class="wrap">
+  <div class="mast">
+    <a class="brand" href="https://footnote13.substack.com">Footnote<sup>13</sup></a>
+    <nav aria-label="Sections">
+      <a href="#ledger">Ledger</a><a href="#combined">Combined</a><a href="#leases">Hidden leases</a><a href="#data">Data</a><a href="#method">Method</a>
+    </nav>
+  </div>
+
+  <header>
+    <p class="kicker">The AI Capex Ledger · updated <span id="updated" class="num">—</span></p>
+    <h1 id="claim">Big Tech's AI build-out now costs more than its businesses bring in</h1>
+    <p class="deck">Operating cash flow against all-in capital spending, including data centres taken on finance leases, for the five largest AI spenders. Every quarter, every company, with the data free to download.</p>
+    <div class="facts" id="facts" aria-live="polite"></div>
+  </header>
+
+  <section id="ledger">
+    <header>
+      <p class="kicker">The Cash Ledger · $bn per quarter</p>
+      <h2>Who is spending more than they earn, quarter by quarter</h2>
+      <p>Cash gap = operating cash flow minus all-in capex. Red means the company spent more than its operations generated that quarter.</p>
+      <div class="seg" role="group" aria-label="Show values as">
+        <button type="button" id="mode-gap" aria-pressed="true">Cash gap, $bn</button>
+        <button type="button" id="mode-ratio" aria-pressed="false">Capex ÷ cash flow, %</button>
+      </div>
+    </header>
+    <div class="scroll"><table class="ledger" id="grid"></table></div>
+    <div class="legend">
+      <span><i class="sw big"></i>Deficit over $5bn</span>
+      <span><i class="sw small"></i>Deficit under $5bn</span>
+      <span><i class="sw ok"></i>Cash surplus</span>
+      <span><i class="sw due"></i>Not yet reported</span>
+    </div>
+    <div class="src"><span>Source: company 10-Q/10-K filings, earnings releases and calls. Oracle mapped to calendar quarters (Jun–Aug = Q3). Footnote 13 analysis.</span><b>Footnote<sup>13</sup></b></div>
+  </section>
+
+  <section id="combined">
+    <header>
+      <p class="kicker">All five combined · % of operating cash flow</p>
+      <h2 id="comb-h">The five together crossed 100% for the first time</h2>
+      <p>All-in capex as a share of operating cash flow, five companies summed. Only quarters in which all five have reported.</p>
+    </header>
+    <div class="chart" id="comb-chart"></div>
+    <div class="src"><span>Source: company filings. Quarterly and trailing-twelve-month sums. Footnote 13 analysis.</span><b>Footnote<sup>13</sup></b></div>
+  </section>
+
+  <section id="leases">
+    <header>
+      <p class="kicker">The Waterline · leases signed, not yet started</p>
+      <h2>Commitments already signed but not yet on the balance sheet</h2>
+      <p>Future payments on leases signed but not yet commenced, mostly data centres, measured in years of operating cash flow. Undiscounted: a measure of scale, not a debt figure.</p>
+    </header>
+    <div class="wl" id="wl"></div>
+    <div class="src"><span>Source: latest 10-Q/10-K per company (date shown); TTM operating cash flow to the same date. Footnote 13 analysis.</span><b>Footnote<sup>13</sup></b></div>
+  </section>
+
+  <section id="data">
+    <header>
+      <p class="kicker">Open data · CC BY 4.0</p>
+      <h2>Download the ledger</h2>
+      <p>Free to use, chart and republish, with credit to Footnote 13.</p>
+    </header>
+    <div class="cols">
+      <div>
+        <div class="dl">
+          <a class="btn" href="data/ledger-master.csv" download>Download CSV <span class="k">one row per fact</span></a>
+          <a class="btn ghost" href="data/ai-capex-ledger.xlsx" download>Excel workbook <span class="k">with formulas</span></a>
+        </div>
+        <p class="note" style="margin:0 0 14px">Source files and full revision history: <a href="https://github.com/footnote13ai/ai-capex-ledger">github.com/footnote13ai/ai-capex-ledger</a></p>
+        <p style="margin:0 0 8px;font-weight:500">How to cite</p>
+        <div class="cite" id="cite">Footnote 13, “AI Capex Ledger”, ledger.footnote13.com, accessed <span id="cite-date"></span>. CC BY 4.0.</div>
+        <div class="dl" style="margin-top:10px"><button type="button" class="btn ghost" id="copy">Copy citation</button><span class="note" id="copied" role="status" style="align-self:center"></span></div>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font-weight:500">What's in the CSV</p>
+        <dl class="dict">
+          <dt>metric</dt><dd>operating_cash_flow, capex_cash, finance_leases, leases_not_yet_commenced, lease_liabilities_recognised</dd>
+          <dt>calendar_quarter</dt><dd>Q3'26 style; fiscal_period gives the company's own label</dd>
+          <dt>value, unit</dt><dd>USD billions</dd>
+          <dt>basis</dt><dd>the exact line item or definition</dd>
+          <dt>source, as_of</dt><dd>the filing or call, and when it was entered</dd>
+        </dl>
+        <p class="note" id="rowcount" style="margin-top:12px"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="method">
+    <header>
+      <p class="kicker">Notes to the ledger</p>
+      <h2>How it is measured</h2>
+    </header>
+    <div class="cols">
+      <div class="prose">
+        <p><b>Cash gap</b> is operating cash flow minus all-in capital expenditure. All-in capex is cash spent on property and equipment plus assets taken on finance leases, as each company reports them. Data centres taken on operating leases are left out of capex and shown separately, as commitments not yet started.</p>
+        <p><b>Quarters</b> are calendar quarters. Oracle's fiscal quarters end one month earlier (its June–August quarter is shown as Q3); Microsoft's fiscal year ends in June. The CSV carries both labels.</p>
+        <p><b>Revisions</b> are logged below and in the repository history. Figures marked as estimates in the basis column are noted there.</p>
+      </div>
+      <div>
+        <table class="basis" id="basis"></table>
+      </div>
+    </div>
+    <div style="margin-top:32px">
+      <p style="margin:0 0 6px;font-weight:500">Changelog</p>
+      <ol class="log">
+        <li><time datetime="2026-10-24">24 Oct 2026</time><span>Ledger launched: five companies, Q3'21 to latest. Finance leases from Q1'24. Hidden leases at each company's latest filing.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span><b style="font-family:var(--serif);color:var(--ink)">Footnote<sup style="font-family:var(--mono);color:var(--red);font-size:10px">13</sup></b> · The AI economy, one chart at a time.</span>
+    <span><a href="https://footnote13.substack.com">Subscribe on Substack</a> · <a href="https://x.com/footnote_13">@footnote_13</a></span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  // Reports not yet in: company -> label for the newest column. Update each season.
+  var DUE = {"Microsoft":"Due 28 Oct","Alphabet":"Due 28 Oct","Amazon":"Due 29 Oct"};
+  var START = 2024*4+1; // Q1'24
+
+  function parseCSV(t){
+    var rows=[],row=[],f="",q=false;
+    for(var i=0;i<t.length;i++){var c=t[i];
+      if(q){ if(c=='"'){ if(t[i+1]=='"'){f+='"';i++;} else q=false; } else f+=c; }
+      else if(c=='"') q=true; else if(c==','){row.push(f);f="";}
+      else if(c=='\n'){row.push(f);rows.push(row);row=[];f="";} else if(c!='\r') f+=c;
+    }
+    if(f||row.length){row.push(f);rows.push(row);}
+    var h=rows.shift();
+    return rows.filter(function(r){return r.length===h.length;}).map(function(r){var o={};h.forEach(function(k,j){o[k]=r[j];});return o;});
+  }
+  function qkey(q){return (2000+ +q.slice(3))*4+ +q[1];}
+  function qlab(k){var y=Math.floor((k-1)/4),n=k-y*4;return "Q"+n+"'"+String(y).slice(2);}
+  function fmt(v,d){var s=Math.abs(v).toFixed(d==null?1:d);return (v<0?"−":"")+s;}
+  function pct(v){return Math.round(v*100)+"%";}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+  function build(rows){
+    var Q={}, L=[], cos=[], latestAsOf="";
+    rows.forEach(function(r){
+      if(r.as_of>latestAsOf) latestAsOf=r.as_of;
+      if(cos.indexOf(r.company)<0) cos.push(r.company);
+      var v=parseFloat(r.value);
+      if(r.calendar_quarter){
+        var k=r.company+"|"+qkey(r.calendar_quarter);
+        var o=Q[k]||(Q[k]={company:r.company,key:qkey(r.calendar_quarter),end:r.period_end,ocf:null,capex:null,fl:0});
+        if(r.metric==="operating_cash_flow") o.ocf=v;
+        else if(r.metric==="capex_cash") o.capex=v;
+        else if(r.metric==="finance_leases") o.fl=v;
+      } else if(r.metric==="leases_not_yet_commenced"){ L.push({company:r.company,asOf:r.period_end,value:v}); }
+    });
+    var byCo={};
+    Object.keys(Q).forEach(function(k){var o=Q[k]; if(o.ocf==null||o.capex==null) return;
+      o.allin=o.capex+o.fl; o.gap=o.ocf-o.allin; o.ratio=o.ocf>0?o.allin/o.ocf:null;
+      (byCo[o.company]=byCo[o.company]||{})[o.key]=o;});
+    var maxK=0; Object.keys(Q).forEach(function(k){if(Q[k].key>maxK) maxK=Q[k].key;});
+    var cols=[]; for(var k=START;k<=maxK;k++) cols.push(k);
+
+    function ttm(co,k){var s=0,a=0;for(var j=k-3;j<=k;j++){var o=byCo[co]&&byCo[co][j]; if(!o) return null; s+=o.ocf; a+=o.allin;} return {ocf:s,allin:a};}
+
+    // per-company status
+    var info=cos.map(function(co){
+      var ks=Object.keys(byCo[co]||{}).map(Number).sort(function(a,b){return a-b;});
+      var last=ks[ks.length-1], last8=ks.slice(-8), n=last8.filter(function(k){return byCo[co][k].gap<0;}).length;
+      var since=ks.filter(function(k){return k>=START;}), defs=since.filter(function(k){return byCo[co][k].gap<0;});
+      var st;
+      if(!defs.length) st="No deficit since Q1'24";
+      else if(defs.length===1) st="First deficit: "+qlab(defs[0]);
+      else st="In deficit "+n+" of last "+last8.length+" quarters";
+      return {co:co,last:last,lastO:byCo[co][last],n:n,st:st};
+    });
+    info.sort(function(a,b){return (b.n-a.n)||((b.lastO.ratio||0)-(a.lastO.ratio||0));});
+
+    // combined quarters (all companies present)
+    var comb=cols.map(function(k){var o={key:k,ocf:0,allin:0,n:0};cos.forEach(function(co){var x=byCo[co][k]; if(x){o.ocf+=x.ocf;o.allin+=x.allin;o.n++;}});
+      o.ratio=o.allin/o.ocf; o.gap=o.ocf-o.allin;
+      var t={ocf:0,allin:0},ok=true; cos.forEach(function(co){var x=ttm(co,k); if(!x) ok=false; else {t.ocf+=x.ocf;t.allin+=x.allin;}});
+      o.ttm=ok?t.allin/t.ocf:null; return o;}).filter(function(o){return o.n===cos.length;});
+
+    // hidden leases
+    var wl=L.map(function(l){
+      var co=l.company, k=null; Object.keys(byCo[co]||{}).forEach(function(j){if(byCo[co][j].end===l.asOf) k=+j;});
+      var t=k?ttm(co,k):null; return {co:co,asOf:l.asOf,value:l.value,ocf:t?t.ocf:null,yrs:t?l.value/t.ocf:null};
+    }).filter(function(x){return x.yrs!=null;}).sort(function(a,b){return b.yrs-a.yrs;});
+
+    return {cos:cos,byCo:byCo,cols:cols,info:info,comb:comb,wl:wl,asOf:latestAsOf,rows:rows.length};
+  }
+
+  var D, mode="gap";
+
+  function renderFacts(){
+    var lastC=D.comb[D.comb.length-1], inDef=D.info.filter(function(i){return i.lastO.gap<0;}).length;
+    var totL=D.wl.reduce(function(s,x){return s+x.value;},0), totO=D.wl.reduce(function(s,x){return s+x.ocf;},0);
+    var f=[
+      {v:pct(lastC.ratio),red:lastC.ratio>1,l:"All-in capex as a share of operating cash flow, five combined, "+qlab(lastC.key)},
+      {v:inDef+" of "+D.cos.length,red:inDef>D.cos.length/2,l:"Companies outspending their cash flow in their latest reported quarter"},
+      {v:"$"+(totL/1000).toFixed(1)+"tn",red:false,l:"Data-centre and other leases signed but not yet started: "+(totL/totO).toFixed(1)+" years of cash flow"}
+    ];
+    document.getElementById("facts").innerHTML=f.map(function(x){return '<div class="fact"><span class="v'+(x.red?' red':'')+'">'+esc(x.v)+'</span><span class="l">'+esc(x.l)+'</span></div>';}).join("");
+    var d=new Date(D.asOf+"T12:00:00Z");
+    document.getElementById("updated").textContent=d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"});
+  }
+
+  function renderGrid(){
+    var cols=D.cols, h='<thead><tr><th class="first"></th>';
+    var years={}; cols.forEach(function(k){var y=qlab(k).slice(3); years[y]=(years[y]||0)+1;});
+    var yrRow='<tr><th></th>'; Object.keys(years).forEach(function(y){yrRow+='<th class="yr" colspan="'+years[y]+'">20'+y+'</th>';}); yrRow+='<th></th></tr>';
+    h='<thead>'+yrRow+'<tr><th class="first"></th>'+cols.map(function(k){return '<th scope="col">Q'+qlab(k)[1]+'</th>';}).join("")+'<th scope="col" style="text-align:right;padding-left:14px">Latest<br>capex ÷ OCF</th></tr></thead><tbody>';
+    D.info.forEach(function(i){
+      h+='<tr><th scope="row"><span class="co">'+esc(i.co)+'</span><span class="st">'+esc(i.st)+'</span></th>';
+      cols.forEach(function(k,idx){
+        var o=D.byCo[i.co][k];
+        if(!o){ var lab=(idx===cols.length-1&&DUE[i.co])?DUE[i.co]:"—"; h+='<td><div class="cell '+(lab==="—"?"na":"due")+'">'+esc(lab)+'</div></td>'; return; }
+        var cls=o.gap<0?(o.gap<=-5?"def big":"def"):(o.gap<1?"near":"");
+        var txt=mode==="gap"?fmt(o.gap):(o.ratio==null?"n/m":pct(o.ratio));
+        var tip=i.co+" "+qlab(k)+": OCF $"+o.ocf.toFixed(1)+"bn, all-in capex $"+o.allin.toFixed(1)+"bn, gap "+fmt(o.gap)+"bn";
+        h+='<td><div class="cell '+cls+'" title="'+esc(tip)+'">'+txt+'</div></td>';
+      });
+      var r=i.lastO.ratio; h+='<td class="latest"><span class="r'+(r>1?' red':'')+'">'+(r==null?"n/m":pct(r))+'</span><span class="q">'+qlab(i.last)+'</span></td></tr>';
+    });
+    // combined row
+    h+='<tr class="total"><th scope="row"><span class="co">All five</span><span class="st">Only where all five reported</span></th>';
+    var ck={}; D.comb.forEach(function(o){ck[o.key]=o;});
+    cols.forEach(function(k){var o=ck[k]; if(!o){h+='<td><div class="cell na">—</div></td>';return;}
+      var cls=o.gap<0?(o.gap<=-5?"def big":"def"):""; h+='<td><div class="cell '+cls+'">'+(mode==="gap"?fmt(o.gap):pct(o.ratio))+'</div></td>';});
+    var lc=D.comb[D.comb.length-1]; h+='<td class="latest"><span class="r'+(lc.ratio>1?' red':'')+'">'+pct(lc.ratio)+'</span><span class="q">'+qlab(lc.key)+'</span></td></tr></tbody>';
+    document.getElementById("grid").innerHTML=h;
+  }
+
+  function renderComb(){
+    var C=D.comb, W=760, H=320, m={l:44,r:92,t:18,b:34}, iw=W-m.l-m.r, ih=H-m.t-m.b;
+    var ymax=1.2, x=function(i){return m.l+(C.length===1?iw/2:i*iw/(C.length-1));}, y=function(v){return m.t+ih-(v/ymax)*ih;};
+    var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="All-in capex as a share of operating cash flow, five companies combined">';
+    s+='<rect x="'+m.l+'" y="'+y(1.2)+'" width="'+iw+'" height="'+(y(1)-y(1.2))+'" fill="var(--red-soft)"/>';
+    [0,.25,.5,.75,1].forEach(function(g){s+='<line x1="'+m.l+'" x2="'+(m.l+iw)+'" y1="'+y(g)+'" y2="'+y(g)+'" stroke="var(--rule)" stroke-width="1"/>';
+      s+='<text x="'+(m.l-8)+'" y="'+(y(g)+4)+'" text-anchor="end">'+(g*100)+'%</text>';});
+    s+='<line x1="'+m.l+'" x2="'+(m.l+iw)+'" y1="'+y(1)+'" y2="'+y(1)+'" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="5 4"/>';
+    s+='<text x="'+(m.l+6)+'" y="'+(y(1)-7)+'" fill="var(--red)" style="fill:var(--red)">100% = spending all its cash flow</text>';
+    C.forEach(function(o,i){ if(i%1===0) s+='<text x="'+x(i)+'" y="'+(H-10)+'" text-anchor="middle">'+qlab(o.key)+'</text>';});
+    function line(key,col,w){var p=C.map(function(o,i){return o[key]==null?null:[x(i),y(o[key])];}).filter(Boolean);
+      return '<polyline fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linejoin="round" points="'+p.map(function(a){return a.join(",");}).join(" ")+'"/>';}
+    s+=line("ttm","var(--slate)",2)+line("ratio","var(--red)",3);
+    var li=C.length-1, lt=C[li];
+    s+='<circle cx="'+x(li)+'" cy="'+y(lt.ratio)+'" r="5" fill="var(--red)"/>';
+    s+='<text class="lbl" x="'+(x(li)+10)+'" y="'+(y(lt.ratio)+4)+'" style="fill:var(--red)">'+pct(lt.ratio)+' quarter</text>';
+    if(lt.ttm!=null){ s+='<circle cx="'+x(li)+'" cy="'+y(lt.ttm)+'" r="3.5" fill="var(--slate)"/>';
+      s+='<text class="lbl" x="'+(x(li)+10)+'" y="'+(y(lt.ttm)+4)+'" style="fill:var(--slate)">'+pct(lt.ttm)+' 12-month</text>'; }
+    s+='</svg>';
+    document.getElementById("comb-chart").innerHTML=s;
+    var crossed=C.filter(function(o){return o.ratio>1;});
+    document.getElementById("comb-h").textContent=crossed.length===1?"The five together crossed 100% for the first time in "+qlab(crossed[0].key):(crossed.length?"The five together have spent more than their cash flow in "+crossed.length+" quarters":"The five together still spend less than their cash flow");
+  }
+
+  function renderWL(){
+    var max=Math.max.apply(null,D.wl.map(function(x){return x.yrs;}));
+    var tot={value:0,ocf:0}; D.wl.forEach(function(x){tot.value+=x.value;tot.ocf+=x.ocf;});
+    function row(name,sub,yrs,val,cls,tcls){var w=Math.max(2,yrs/max*78);
+      return '<div class="wl-row'+(tcls||"")+'"><div class="wl-name">'+esc(name)+'<small>'+esc(sub)+'</small></div><div class="wl-track"><div class="wl-bar '+cls+'" style="width:'+w.toFixed(1)+'%"></div><div class="wl-val '+(cls==="story"?"story":"")+'"><b>'+yrs.toFixed(1)+' yrs</b> <span>$'+Math.round(val)+'bn</span></div></div></div>';}
+    var h=D.wl.map(function(x,i){var d=new Date(x.asOf+"T12:00:00Z").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"});
+      return row(x.co,"as of "+d,x.yrs,x.value,i===0?"story":"");}).join("");
+    h+=row("All five","mixed dates",tot.value/tot.ocf,tot.value,"tot"," total");
+    document.getElementById("wl").innerHTML=h;
+  }
+
+  function renderBasis(rows){
+    var b={}; rows.forEach(function(r){if(r.metric==="finance_leases") b[r.company]=r.basis;});
+    var h='<tbody>'+D.cos.map(function(co){return '<tr><th scope="row">'+esc(co)+'</th><td>Cash capex'+(b[co]?' + '+esc(b[co]):' only (finance leases not added)')+'</td></tr>';}).join("")+'</tbody>';
+    document.getElementById("basis").innerHTML=h;
+    document.getElementById("rowcount").textContent=D.rows+" rows · "+D.cos.length+" companies";
+  }
+
+  function setMode(m){mode=m;document.getElementById("mode-gap").setAttribute("aria-pressed",m==="gap");document.getElementById("mode-ratio").setAttribute("aria-pressed",m==="ratio");renderGrid();}
+  document.getElementById("mode-gap").addEventListener("click",function(){setMode("gap");});
+  document.getElementById("mode-ratio").addEventListener("click",function(){setMode("ratio");});
+
+  document.getElementById("cite-date").textContent=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+  document.getElementById("copy").addEventListener("click",function(){
+    var t=document.getElementById("cite").textContent, s=document.getElementById("copied");
+    try{navigator.clipboard.writeText(t).then(function(){s.textContent="Copied";},function(){sel();});}catch(e){sel();}
+    function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById("cite"));var w=getSelection();w.removeAllRanges();w.addRange(r);s.textContent="Selected — press Ctrl+C";}
+  });
+
+  fetch("data/ledger-master.csv").then(function(r){if(!r.ok) throw new Error(r.status);return r.text();}).then(function(t){
+    var rows=parseCSV(t); D=build(rows);
+    renderFacts(); renderGrid(); renderComb(); renderWL(); renderBasis(rows);
+  }).catch(function(e){
+    document.getElementById("facts").innerHTML='<div class="err">The data file could not be loaded ('+esc(e.message)+'). Download it directly: <a href="data/ledger-master.csv">ledger-master.csv</a>.</div>';
+  });
+})();
+</script>
