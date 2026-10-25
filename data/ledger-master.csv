@@ -236,3 +236,11 @@ Oracle,ORCL,operating_cash_flow,Q4'25,2025-11-30,FY26 Q2,2.07,USD bn,Net cash fr
 Oracle,ORCL,operating_cash_flow,Q1'26,2026-02-28,FY26 Q3,7.15,USD bn,Net cash from operating activities,Company 10-Q/10-K cash flow statement (discrete quarter),2026-10-24,
 Oracle,ORCL,operating_cash_flow,Q2'26,2026-05-31,FY26 Q4,14.62,USD bn,Net cash from operating activities,Company 10-Q/10-K cash flow statement (discrete quarter),2026-10-24,
 Oracle,ORCL,operating_cash_flow,Q3'26,2026-08-31,FY27 Q1,23.1,USD bn,Net cash from operating activities,Company 10-Q/10-K cash flow statement (discrete quarter),2026-10-24,
+Meta,META,capex_guidance_fy_low,,2026-12-31,FY26,135,USD bn,"FY2026 capex guidance incl. principal payments on finance leases, low end (raised from 130)","Meta Q3 2026 earnings release / 8-K, 21 Oct 2026",2026-10-25,
+Meta,META,capex_guidance_fy_high,,2026-12-31,FY26,145,USD bn,"FY2026 capex guidance incl. principal payments on finance leases, high end","Meta Q3 2026 earnings release / 8-K, 21 Oct 2026",2026-10-25,
+Meta,META,debt_issued_ytd,,2026-09-30,FY26 9M,24.91,USD bn,"Net proceeds from May 2026 notes, nine months to 30 Sep",Meta 10-Q Q3 2026,2026-10-25,
+Meta,META,finance_lease_principal_ytd,,2026-09-30,FY26 9M,2.77,USD bn,"Principal payments on finance leases, nine months to 30 Sep",Meta 10-Q Q3 2026,2026-10-25,Matches quarterly finance_leases rows Q1-Q3 2026 (0.84+0.96+0.96=2.76; rounding)
+Meta,META,cds_5y,,2026-10-22,,114.79,bp,"5-year CDS spread, record","Markit via Reuters, 22 Oct 2026",2026-10-25,Providers differ: ICE 119.3 intraday same day; LSEG ~123 on 23 Oct
+Oracle,ORCL,cds_5y,,2026-10-21,,308.25,bp,5-year CDS spread,"FactSet via CNBC, 22 Oct 2026",2026-10-25,141 on 2 Jan 2026 (same source)
+Oracle,ORCL,cds_5y,,2026-01-02,,141,bp,5-year CDS spread,"FactSet via CNBC, 22 Oct 2026",2026-10-25,
+Oracle,ORCL,earnings_date,,2026-12-14,FY27 Q2,,date,Scheduled Q2 FY27 results release,"EconoTimes, 20 Oct 2026",2026-10-25,Date in period_end
