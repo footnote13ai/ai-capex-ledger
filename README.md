@@ -8,6 +8,7 @@ Live page: https://ledger.footnote13.com
 - `data/ledger-master.csv`: one row per fact (company, metric, calendar and fiscal period, value, unit, basis, source, as-of date, notes). The page reads this file directly.
 - `data/ai-capex-ledger.xlsx`: Excel export with formulas (Ledger, Quarterly, Combined, Hidden leases, Companies, Changelog).
 - `index.html`: the page (what changed, company summaries, cash ledger, combined ratio, hidden leases, row browser, downloads).
+- `tools/public_export.py`: builds the public CSV and the workbook's Ledger sheet from Footnote 13's internal master. Values are copied unchanged; internal workflow remarks are removed from notes.
 
 ## Groups
 1. Big Five (Microsoft, Alphabet, Amazon, Meta, Oracle): the only rows that feed the cash charts.
@@ -21,6 +22,7 @@ Cash gap = operating cash flow − all-in capex. All-in capex = cash capex + fin
 Data: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Credit "Footnote 13, AI Capex Ledger". Source figures come from public company filings and the reports named in each row.
 
 ## Changelog
+- 2026-11-07 (later): internal workflow remarks removed from notes (66 rows; no values changed); line endings normalised.
 - 2026-11-07: 61 rows (340 total): bond spreads, ratings, maturities, latest CDS, Meta debt and JV exposure, Alphabet backstops; neoclouds and chip suppliers added. Page: what-changed panel, company summaries, row browser with filtered CSV download, PNG chart downloads, next-quarter due dates.
 - 2026-11-05: 16 rows: bond and share sales, Amazon commitments and backlog, Alphabet purchase commitments, S&P on Meta.
 - 2026-10-31: 18 rows: Q3 2026 for Microsoft, Alphabet, Amazon; leases at 30 Sep; guidance, backlog, financing.
