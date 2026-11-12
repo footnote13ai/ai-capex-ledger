@@ -22,6 +22,7 @@ Cash gap = operating cash flow − all-in capex. All-in capex = cash capex + fin
 Data: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Credit "Footnote 13, AI Capex Ledger". Source figures come from public company filings and the reports named in each row.
 
 ## Changelog
+- 2026-11-12: 12 rows (352 total): CoreWeave Q3 2026 results, backlog, FY26 revenue and capex guidance, total debt (approx., verify vs 10-Q).
 - 2026-11-07 (later): internal workflow remarks removed from notes (66 rows; no values changed); line endings normalised.
 - 2026-11-07: 61 rows (340 total): bond spreads, ratings, maturities, latest CDS, Meta debt and JV exposure, Alphabet backstops; neoclouds and chip suppliers added. Page: what-changed panel, company summaries, row browser with filtered CSV download, PNG chart downloads, next-quarter due dates.
 - 2026-11-05: 16 rows: bond and share sales, Amazon commitments and backlog, Alphabet purchase commitments, S&P on Meta.
