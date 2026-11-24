@@ -3,11 +3,18 @@
 Usage: python3 tools/public_export.py MASTER.csv
 Writes data/ledger-master.csv and updates the Ledger sheet in data/ai-capex-ledger.xlsx.
 Values are never changed; only internal workflow remarks (approvals, queue and
-post references, to-do flags) are removed from the notes and source columns.
+post references, to-do flags, internal document links) are removed from the notes and source columns.
 """
 import csv, re, sys, openpyxl
 
 NOTE_RULES = [
+    (r"\s*URL: \S+", ""),
+    (r"Correction approved by David \d{1,2} [A-Z][a-z]{2}\.?", ""),
+    (r"New metric label approved \d{1,2} [A-Z][a-z]{2}\.?", ""),
+    (r"Relabelled from the 14 Nov candidate \"offbalance_neocloud_backstops\" as purchase commitments \(approved 22 Nov\)\.?", ""),
+    (r"\s*\(checked 23 Nov, approved 22 Nov\)", ""),
+    (r"\s*\(verify flag cleared, approved 22 Nov\)", ""),
+    (r"\s*\(CDS rule 7 Nov\)", ""),
     (r"Approved( by David)?( \d{1,2} [A-Z][a-z]{2})?( \(ledger-pending\))?\.?", ""),
     (r"REFRESH from Q3 10-Q\.?", ""),
     (r"\s*\(rule agreed 7 Nov[^)]*\)", ""),
